@@ -1,0 +1,82 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Inköpslistan</h1>
+    @if (Model.IsSignedIn)
+    {
+        <p>Du är inloggad som @Model.CurrentUser.UserName</p>
+        <h2>Varor</h2>
+        @if (Model.NewInput == null)
+        {
+            <div>
+                <button class="btn btn-primary" data-toggle="collapse" data-target="#newfrm" aria-expanded="@(Model.KeepOpen ? "true" : "false")" aria-controls="newfrm">
+                    Lägg till...
+                </button>
+            </div>
+            <div class="collapse @(Model.KeepOpen ? "show" : null)" id="newfrm">
+                <form method="post">
+                    <input name="itemdescription" placeholder="Varans beskrivning" />
+                    <input name="quantity" type="number" placeholder="Antal" />
+                    <input type="submit" value="Spara" />
+                </form>
+            </div>
+        }
+        @if (Model.GroceryItems.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Vara</th>
+                        <th>Antal</th>
+                        <th>Plockad?</th>
+                        <th>Åtgärd</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.GroceryItems)
+                    {
+                        <tr>
+                            @if (Model.NewInput == null || item.Id != Model.NewInput.Id)
+                            {
+                                <td>@item.ItemDescription</td>
+                                <td>@item.Quantity</td>
+                                <td><a asp-page-handler="UpdateItemState" asp-route-id="@item.Id" aria-label="@(item.Purchased ? "lägg tillbaka" : "Plocka")"><span><i class="bi @(item.Purchased ? "bi-check-square" : "bi-square")"></i></span></a></td>
+                                @if (Model.CurrentUser.Id == item.ByUser)
+                                {
+                        <td>
+                            <a asp-route-changeid="@item.Id" aria-label="Ändra"><i class="bi bi-pencil"></i></a>
+                            <a asp-page-handler="RemoveItem" asp-route-id="@item.Id" aria-label="Ta bort"><i class="bi bi-trash"></i></a>
+                        </td>
+                                }
+                            }
+                            else
+                            {
+                                <form method="post">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <td> <input name="itemdescription" placeholder="Varans beskrivning" value="@Model.NewInput.ItemDescription" /></td>
+                                    <td> <input name="quantity" type="number" placeholder="Antal" value="@Model.NewInput.Quantity" /></td>
+                                    <td></td>
+                                    <td> <input type="submit" value="Spara" /></td>
+                                </form>
+
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Listan är tom!</p>
+        }
+    }
+    else
+    {
+        <p>Du är inte inloggad, pilutta dig!</p>
+    }
+
+</div>
