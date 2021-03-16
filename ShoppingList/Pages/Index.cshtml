@@ -14,14 +14,14 @@
         {
             <div>
                 <button class="btn btn-primary" data-toggle="collapse" data-target="#newfrm" aria-expanded="@(Model.KeepOpen ? "true" : "false")" aria-controls="newfrm">
-                    Lägg till...
+                    <i class="bi bi-plus-square" aria-label="Lägg till"></i>
                 </button>
             </div>
             <div class="collapse @(Model.KeepOpen ? "show" : null)" id="newfrm">
                 <form method="post">
                     <input name="itemdescription" placeholder="Varans beskrivning" />
                     <input name="quantity" type="number" placeholder="Antal" />
-                    <input type="submit" value="Spara" />
+                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-save" aria-label="Spara"></i></button>
                 </form>
             </div>
         }
@@ -60,7 +60,7 @@
                                     <td> <input name="itemdescription" placeholder="Varans beskrivning" value="@Model.NewInput.ItemDescription" /></td>
                                     <td> <input name="quantity" type="number" placeholder="Antal" value="@Model.NewInput.Quantity" /></td>
                                     <td></td>
-                                    <td> <input type="submit" value="Spara" /></td>
+                                    <td> <button type="submit"><i class="bi bi-save" aria-label="Spara"></i></button></td>
                                 </form>
 
                             }
