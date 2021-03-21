@@ -37,7 +37,12 @@ namespace ShoppingList
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddRazorPages();
+            services.AddSession();
+            services.AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizeFolder("/Families/");
+                options.Conventions.AuthorizeFolder("/Lists/");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,7 +62,7 @@ namespace ShoppingList
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSession();
             app.UseRouting();
 
             app.UseAuthentication();

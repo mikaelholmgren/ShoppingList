@@ -12,7 +12,9 @@ namespace ShoppingList.Models
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
-        public ICollection<IdentityUser> Members { get; set; }
-        public string IdentityUserId { get; set; }
+        public ICollection<FamilyMember> Members { get; set; } = new HashSet<FamilyMember>();
+        [Required]
+        public string OwnerUserId { get; set; }
+        public ICollection<GroceryList> Lists { get; set; }
     }
 }

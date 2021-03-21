@@ -6,7 +6,7 @@
 
 <div class="text-center">
     <h1 class="display-4">Inköpslistan</h1>
-    @if (Model.IsSignedIn)
+    @if (Model.IsSignedIn && Model.CurrentFamily != null)
     {
         <p>Du är inloggad som @Model.CurrentUser.UserName</p>
         <h2>Varor</h2>
@@ -47,10 +47,10 @@
                                 <td><a asp-page-handler="UpdateItemState" asp-route-id="@item.Id" aria-label="@(item.Purchased ? "lägg tillbaka" : "Plocka")"><span><i class="bi @(item.Purchased ? "bi-check-square" : "bi-square")"></i></span></a></td>
                                 @if (Model.CurrentUser.Id == item.ByUser)
                                 {
-                        <td>
-                            <a asp-route-changeid="@item.Id" aria-label="Ändra"><i class="bi bi-pencil"></i></a>
-                            <a asp-page-handler="RemoveItem" asp-route-id="@item.Id" aria-label="Ta bort"><i class="bi bi-trash"></i></a>
-                        </td>
+                                    <td>
+                                        <a asp-route-changeid="@item.Id" aria-label="Ändra"><i class="bi bi-pencil"></i></a>
+                                        <a asp-page-handler="RemoveItem" asp-route-id="@item.Id" aria-label="Ta bort"><i class="bi bi-trash"></i></a>
+                                    </td>
                                 }
                             }
                             else
@@ -73,6 +73,10 @@
         {
             <p>Listan är tom!</p>
         }
+    }
+    else if (Model.IsSignedIn && Model.CurrentFamily == null)
+    {
+        <p>Du är inte medlem i någon familj. Antingen skapa en på familje-fliken eller låt en familjeadmin lägga till dig.</p>
     }
     else
     {

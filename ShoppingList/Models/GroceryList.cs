@@ -13,8 +13,6 @@ namespace ShoppingList.Models
         public string Name { get; set; }
         public ICollection<GroceryItem> Items { get; set; }
         [Required]
-        public int GroceryItemId { get; set; }
-        [Required]
         public int FamilyId { get; set; }
         public Family Family { get; set; }
     }

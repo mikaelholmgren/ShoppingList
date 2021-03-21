@@ -27,6 +27,7 @@ namespace ShoppingList.Pages
         public IList<GroceryItem> GroceryItems { get; set; }
         public bool IsSignedIn { get; set; }
         public IdentityUser CurrentUser { get; set; }
+        public Family CurrentFamily { get; set; }
         [BindProperty(SupportsGet = true)]
         public bool KeepOpen { get; set; }
         [BindProperty]
@@ -35,7 +36,14 @@ namespace ShoppingList.Pages
         {
             IsSignedIn = _sim.IsSignedIn(User);
             if (IsSignedIn)
+            {
                 CurrentUser = await _um.GetUserAsync(User);
+                FamilyMember member = await _context.FamilyMembers.FirstOrDefaultAsync(i => i.Id == CurrentUser.Id);
+                if (member != null)
+                {
+                    CurrentFamily = await _context.Family.Include(l => l.Lists).FirstOrDefaultAsync(f => f.Id == member.FamilyId);
+                }
+            }
             GroceryItems = await _context.GroceryItems.ToListAsync();
             if (changeId != null)
             {

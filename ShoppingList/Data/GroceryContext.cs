@@ -14,5 +14,8 @@ namespace ShoppingList.Data
 
         }
         public DbSet<GroceryItem> GroceryItems { get; set; }
+        public DbSet<Family> Family { get; set; }
+        public DbSet<GroceryList> GroceryList { get; set; }
+        public DbSet<FamilyMember> FamilyMembers { get; set; }
     }
 }
