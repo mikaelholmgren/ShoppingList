@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShoppingList.Data;
+using ShoppingList.Extensions;
 using ShoppingList.Models;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace ShoppingList.Pages
             _sim = sim;
             _um = um;
         }
+
+        public GroceryList GroceryList { get; private set; }
         public IList<GroceryItem> GroceryItems { get; set; }
         public bool IsSignedIn { get; set; }
         public IdentityUser CurrentUser { get; set; }
@@ -32,32 +35,59 @@ namespace ShoppingList.Pages
         public bool KeepOpen { get; set; }
         [BindProperty]
         public InputModel NewInput { get; set; }
-        public async Task<IActionResult> OnGetAsync(int? changeId)
+        public IList<GroceryList> FamilyLists { get; private set; }
+
+        public async Task<IActionResult> OnGetAsync(int? changeId, int? listId)
         {
             IsSignedIn = _sim.IsSignedIn(User);
-            if (IsSignedIn)
+            var familyId = HttpContext.Session.GetFamilyId();
+            var selectedListId = HttpContext.Session.GetSelectedListId();
+            if (listId != null)
+            {
+                HttpContext.Session.SetSelectedListId(listId.Value);
+            }
+            if (IsSignedIn && familyId == null)
             {
                 CurrentUser = await _um.GetUserAsync(User);
                 FamilyMember member = await _context.FamilyMembers.FirstOrDefaultAsync(i => i.Id == CurrentUser.Id);
                 if (member != null)
                 {
                     CurrentFamily = await _context.Family.Include(l => l.Lists).FirstOrDefaultAsync(f => f.Id == member.FamilyId);
+                    HttpContext.Session.SetFamilyId(CurrentFamily.Id);
+                    HttpContext.Session.SetUserId(CurrentUser.Id);
+                    HttpContext.Session.SetIsOwner(CurrentFamily.OwnerUserId == CurrentUser.Id);
+                    familyId = CurrentFamily.Id;
                 }
             }
-            GroceryItems = await _context.GroceryItems.ToListAsync();
-            if (changeId != null)
+            else if (IsSignedIn)
             {
-                var item = _context.GroceryItems.Find(changeId.Value);
-                if (item != null && CurrentUser.Id == item.ByUser)
+                CurrentUser = await _um.GetUserAsync(User);
+                CurrentFamily = await _context.Family.Include(l => l.Lists).FirstOrDefaultAsync(f => f.Id == familyId);
+            }
+            if (selectedListId != null && selectedListId.Value != 0)
+            {
+                GroceryList = await _context.GroceryList.FirstOrDefaultAsync(i => i.Id == selectedListId);
+                GroceryItems = await _context.GroceryItems.Where(l => l.GroceryListId == selectedListId.Value).ToListAsync();
+                if (changeId != null)
                 {
-                    NewInput = new()
+                    var item = _context.GroceryItems.Find(changeId.Value);
+                    if (item != null && CurrentUser.Id == item.ByUser)
                     {
-                        Id = item.Id,
-                        ItemDescription = item.ItemDescription,
-                        Quantity = item.Quantity
-                    };
+                        NewInput = new()
+                        {
+                            Id = item.Id,
+                            ItemDescription = item.ItemDescription,
+                            Quantity = item.Quantity
+                        };
+                    }
                 }
             }
+            else if (familyId != null)
+            {
+                FamilyLists = await _context.GroceryList.Where(f => f.FamilyId == familyId).ToListAsync();
+            }
+            if (listId != null)
+                return RedirectToPage("./Index");
             return Page();
         }
         public async Task<IActionResult> OnPostAsync()
@@ -65,7 +95,7 @@ namespace ShoppingList.Pages
             IsSignedIn = _sim.IsSignedIn(User);
             if (IsSignedIn)
                 CurrentUser = await _um.GetUserAsync(User);
-
+            var selectedListId = HttpContext.Session.GetSelectedListId();
             if (NewInput != null)
             {
                 if (NewInput.Id == 0)
@@ -74,9 +104,11 @@ namespace ShoppingList.Pages
                     {
                         ItemDescription = NewInput.ItemDescription,
                         Quantity = NewInput.Quantity,
-                        ByUser = CurrentUser.Id
+                        ByUser = CurrentUser.Id,
+                        GroceryListId = selectedListId.Value
                     };
-                    _context.GroceryItems.Add(item);
+                    var list = await _context.GroceryList.Include(i => i.Items).FirstOrDefaultAsync(l => l.Id == selectedListId.Value);
+                    list.Items.Add(item);
                     _context.SaveChanges();
                 }
                 else

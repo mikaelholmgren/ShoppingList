@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using ShoppingList.Data;
+using ShoppingList.Extensions;
 using ShoppingList.Models;
 
 namespace ShoppingList.Pages.Lists
@@ -20,11 +21,17 @@ namespace ShoppingList.Pages.Lists
         }
 
         public IList<GroceryList> GroceryList { get;set; }
+        public int? FamilyId { get; private set; }
 
         public async Task OnGetAsync()
         {
-            GroceryList = await _context.GroceryList
-                .Include(g => g.Family).ToListAsync();
+            var familyId = HttpContext.Session.GetFamilyId();
+            FamilyId = familyId;
+            if (familyId != null)
+                GroceryList = await _context.GroceryList
+                    .Include(g => g.Family).Where(f => f.FamilyId == familyId.Value).ToListAsync();
+            else
+                GroceryList = new List<GroceryList>();
         }
     }
 }

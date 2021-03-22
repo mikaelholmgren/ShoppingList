@@ -8,70 +8,86 @@
     <h1 class="display-4">Inköpslistan</h1>
     @if (Model.IsSignedIn && Model.CurrentFamily != null)
     {
-        <p>Du är inloggad som @Model.CurrentUser.UserName</p>
-        <h2>Varor</h2>
-        @if (Model.NewInput == null)
+        <p>Du är inloggad som @Model.CurrentUser.UserName, och medlem i familjen @Model.CurrentFamily.Name</p>
+        if (Model.GroceryList != null)
         {
-            <div>
-                <button class="btn btn-primary" data-toggle="collapse" data-target="#newfrm" aria-expanded="@(Model.KeepOpen ? "true" : "false")" aria-controls="newfrm">
-                    <i class="bi bi-plus-square" aria-label="Lägg till"></i>
-                </button>
-            </div>
-            <div class="collapse @(Model.KeepOpen ? "show" : null)" id="newfrm">
-                <form method="post">
-                    <input name="itemdescription" placeholder="Varans beskrivning" />
-                    <input name="quantity" type="number" placeholder="Antal" />
-                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-save" aria-label="Spara"></i></button>
-                </form>
-            </div>
-        }
-        @if (Model.GroceryItems.Any())
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Vara</th>
-                        <th>Antal</th>
-                        <th>Plockad?</th>
-                        <th>Åtgärd</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.GroceryItems)
-                    {
+            <p>Du använder listan @Model.GroceryList.Name. <a asp-route-listId="0">Välj en annan</a></p>
+            <h2>Varor</h2>
+            @if (Model.NewInput == null)
+            {
+                <div>
+                    <button class="btn btn-primary" data-toggle="collapse" data-target="#newfrm" aria-expanded="@(Model.KeepOpen ? "true" : "false")" aria-controls="newfrm">
+                        <i class="bi bi-plus-square" aria-label="Lägg till"></i>
+                    </button>
+                </div>
+                <div class="collapse @(Model.KeepOpen ? "show" : null)" id="newfrm">
+                    <form method="post">
+                        <input name="itemdescription" placeholder="Varans beskrivning" />
+                        <input name="quantity" type="number" placeholder="Antal" />
+                        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-save" aria-label="Spara"></i></button>
+                    </form>
+                </div>
+            }
+            @if (Model.GroceryItems.Any())
+            {
+                <table class="table">
+                    <thead>
                         <tr>
-                            @if (Model.NewInput == null || item.Id != Model.NewInput.Id)
-                            {
-                                <td>@item.ItemDescription</td>
-                                <td>@item.Quantity</td>
-                                <td><a asp-page-handler="UpdateItemState" asp-route-id="@item.Id" aria-label="@(item.Purchased ? "lägg tillbaka" : "Plocka")"><span><i class="bi @(item.Purchased ? "bi-check-square" : "bi-square")"></i></span></a></td>
-                                @if (Model.CurrentUser.Id == item.ByUser)
-                                {
-                                    <td>
-                                        <a asp-route-changeid="@item.Id" aria-label="Ändra"><i class="bi bi-pencil"></i></a>
-                                        <a asp-page-handler="RemoveItem" asp-route-id="@item.Id" aria-label="Ta bort"><i class="bi bi-trash"></i></a>
-                                    </td>
-                                }
-                            }
-                            else
-                            {
-                                <form method="post">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <td> <input name="itemdescription" placeholder="Varans beskrivning" value="@Model.NewInput.ItemDescription" /></td>
-                                    <td> <input name="quantity" type="number" placeholder="Antal" value="@Model.NewInput.Quantity" /></td>
-                                    <td></td>
-                                    <td> <button type="submit"><i class="bi bi-save" aria-label="Spara"></i></button></td>
-                                </form>
-
-                            }
+                            <th>Vara</th>
+                            <th>Antal</th>
+                            <th>Plockad?</th>
+                            <th>Åtgärd</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.GroceryItems)
+                        {
+                            <tr>
+                                @if (Model.NewInput == null || item.Id != Model.NewInput.Id)
+                                {
+                                    <td>@item.ItemDescription</td>
+                                    <td>@item.Quantity</td>
+                                    <td><a asp-page-handler="UpdateItemState" asp-route-id="@item.Id" aria-label="@(item.Purchased ? "lägg tillbaka" : "Plocka")"><span><i class="bi @(item.Purchased ? "bi-check-square" : "bi-square")"></i></span></a></td>
+                                    @if (Model.CurrentUser.Id == item.ByUser)
+                                    {
+                                        <td>
+                                            <a asp-route-changeid="@item.Id" aria-label="Ändra"><i class="bi bi-pencil"></i></a>
+                                            <a asp-page-handler="RemoveItem" asp-route-id="@item.Id" aria-label="Ta bort"><i class="bi bi-trash"></i></a>
+                                        </td>
+                                    }
+                                }
+                                else
+                                {
+                                    <form method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <td> <input name="itemdescription" placeholder="Varans beskrivning" value="@Model.NewInput.ItemDescription" /></td>
+                                        <td> <input name="quantity" type="number" placeholder="Antal" value="@Model.NewInput.Quantity" /></td>
+                                        <td></td>
+                                        <td> <button type="submit"><i class="bi bi-save" aria-label="Spara"></i></button></td>
+                                    </form>
+
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Listan är tom!</p>
+            }
+        }
+        else if (Model.FamilyLists != null)
+        {
+            <h2>Välj lista</h2>
+            foreach (var item in Model.FamilyLists)
+            {
+                <p><a asp-route-listId="@item.Id">@item.Name</a></p>
+            }
         }
         else
         {
-            <p>Listan är tom!</p>
+            <p>Du har inga listor i din familj. Skapa en under listor i menyn</p>
         }
     }
     else if (Model.IsSignedIn && Model.CurrentFamily == null)

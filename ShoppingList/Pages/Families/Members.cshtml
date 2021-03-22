@@ -1,0 +1,26 @@
+﻿@page
+@model ShoppingList.Pages.Families.MembersModel
+@{
+}
+<h1>Medlemmar</h1>
+@if (Model.FamilyId != null && Model.IsOwner.Value)
+{
+    <div class="text-center">
+        <h2>Användare utan familj, välj för att lägga till din familj</h2>
+        @if (Model.Users.Count() > 0)
+        {
+            foreach (var user in Model.Users)
+            {
+                <p><a asp-route-addId="@user.Id">@user.UserName</a></p>
+            }
+        }
+        else
+        {
+            <p>Inga användare utan familjetillhörighet finns.</p>
+        }
+    </div>
+}
+else
+{
+    <p>Du är inte skaparen av denna familj, så du kan inte lägga till medlemar.</p>
+}

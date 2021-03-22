@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShoppingList.Data;
+using ShoppingList.Extensions;
 using ShoppingList.Models;
 
 namespace ShoppingList.Pages.Lists
@@ -21,12 +22,13 @@ namespace ShoppingList.Pages.Lists
 
         public IActionResult OnGet()
         {
-        ViewData["FamilyId"] = new SelectList(_context.Family, "Id", "Name");
+            FamilyId = HttpContext.Session.GetFamilyId();
             return Page();
         }
 
         [BindProperty]
         public GroceryList GroceryList { get; set; }
+        public int? FamilyId { get; private set; }
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()

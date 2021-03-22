@@ -7,7 +7,8 @@
 }
 
 <h1>Index</h1>
-
+@if (Model.FamilyId != null)
+{
 <p>
     <a asp-page="Create">Create New</a>
 </p>
@@ -24,7 +25,8 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.GroceryList) {
+@foreach (var item in Model.GroceryList)
+{
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -41,3 +43,8 @@
 }
     </tbody>
 </table>
+}
+else
+            {
+                <p>Du är inte medlem i någon familj! Du måste vara det för att kunna skapa en lista.</p>
+            }
