@@ -40,7 +40,7 @@ namespace ShoppingList.Pages.Families
                 };
                 _ctx.FamilyMembers.Add(member);
                 _ctx.SaveChanges();
-                return;
+                
             }
             var u = _um.Users.ToList();
             Users = new();
